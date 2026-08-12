@@ -4,7 +4,10 @@ A compact, expression-first calculator for macOS, built with SwiftUI.
 
 一款紧凑、以完整算式为核心的 macOS 原生计算器，使用 SwiftUI 构建。
 
-![Awesome Calculator](docs/images/calculator.jpg)
+<p align="center">
+  <img src="docs/images/calculator-compact.png" alt="Awesome Calculator compact view" width="280">
+  <img src="docs/images/calculator-history.png" alt="Awesome Calculator history view" width="625">
+</p>
 
 [中文](#中文) · [English](#english)
 
