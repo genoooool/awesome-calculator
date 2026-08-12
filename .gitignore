@@ -1,0 +1,18 @@
+.DS_Store
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+
+# Build products
+.build/
+.build-release/
+DerivedData/
+Dist/
+*.dmg
+*.zip
+
+# Local design exports and intermediate screenshots
+/*.png
+/*.jpg
