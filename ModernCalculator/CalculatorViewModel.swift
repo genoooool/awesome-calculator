@@ -347,12 +347,8 @@ final class CalculatorViewModel: ObservableObject {
         case .number, .rightParenthesis, .percent:
             tokens.append(.binary(newOperator))
 
-        case .binary(let existingOperator):
-            if newOperator == .subtract, existingOperator != .subtract {
-                tokens.append(.binary(.subtract))
-            } else {
-                tokens[tokens.count - 1] = .binary(newOperator)
-            }
+        case .binary:
+            tokens[tokens.count - 1] = .binary(newOperator)
 
         case .leftParenthesis:
             if newOperator == .add || newOperator == .subtract {
