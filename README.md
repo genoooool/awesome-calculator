@@ -1,8 +1,8 @@
 # Awesome Calculator
 
-A compact, expression-first calculator for macOS, built with SwiftUI.
+A compact, expression-first calculator for macOS and Windows. The macOS app is built with SwiftUI, while the Windows app is distributed as an installer.
 
-一款紧凑、以完整算式为核心的 macOS 原生计算器，使用 SwiftUI 构建。
+一款紧凑、以完整算式为核心的 macOS 与 Windows 计算器。macOS 版使用 SwiftUI 构建，Windows 版以安装程序形式提供。
 
 <p align="center">
   <img src="docs/images/calculator-compact.png" alt="Awesome Calculator compact view" width="280">
@@ -10,6 +10,13 @@ A compact, expression-first calculator for macOS, built with SwiftUI.
 </p>
 
 [中文](#中文) · [English](#english)
+
+## 下载 / Downloads
+
+| 平台 / Platform | 版本 / Version | 下载 / Download |
+| --- | --- | --- |
+| macOS | v1.5 | [DMG](https://github.com/genoooool/awesome-calculator/releases/tag/v1.5) |
+| Windows | v1.0.0 | [EXE 安装程序 / EXE installer](https://github.com/genoooool/awesome-calculator/releases/tag/windows-v1.0.0) |
 
 ## 中文
 
@@ -32,10 +39,11 @@ A compact, expression-first calculator for macOS, built with SwiftUI.
 
 ### 系统要求
 
-- macOS 13 或更高版本
-- Xcode 15 或更高版本
+- macOS 版：macOS 13 或更高版本
+- Windows 版：从上方 Release 页面下载安装程序
+- 从源码构建 macOS 版：Xcode 15 或更高版本
 
-### 本地运行
+### macOS 本地运行
 
 ```bash
 git clone https://github.com/genoooool/awesome-calculator.git
@@ -55,7 +63,7 @@ open ModernCalculator.xcodeproj
 | `Enter` 或 `=` | 完成计算 |
 | `Backspace` | 删除上一位 |
 | `Esc` 或 `C` | 清除当前输入 |
-| `Command + V` | 粘贴并计算表达式 |
+| `Command + V`（macOS）或 `Ctrl + V`（Windows） | 粘贴并计算表达式 |
 
 ## English
 
@@ -78,10 +86,11 @@ Example:
 
 ### Requirements
 
-- macOS 13 or later
-- Xcode 15 or later
+- macOS app: macOS 13 or later
+- Windows app: download the installer from the Release page above
+- Building the macOS app from source: Xcode 15 or later
 
-### Run locally
+### Run the macOS app locally
 
 ```bash
 git clone https://github.com/genoooool/awesome-calculator.git
@@ -101,15 +110,19 @@ Select the `ModernCalculator` scheme in Xcode and press `Command + R`.
 | `Enter` or `=` | Evaluate |
 | `Backspace` | Delete the previous character |
 | `Esc` or `C` | Clear the current input |
-| `Command + V` | Paste and evaluate an expression |
+| `Command + V` (macOS) or `Ctrl + V` (Windows) | Paste and evaluate an expression |
 
 ## Project structure
+
+This repository currently contains the macOS source code. The Windows build is distributed as a binary installer through GitHub Releases.
 
 - `ModernCalculator/CalculatorView.swift` — window, keypad, calculation tape, and history UI.
 - `ModernCalculator/CalculatorViewModel.swift` — tokenizer, parser, evaluation, formatting, and history state.
 - `ModernCalculator/Assets.xcassets` — app icon and color assets.
 
 ## Built with
+
+### macOS app
 
 - Swift
 - SwiftUI
