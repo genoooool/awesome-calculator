@@ -203,8 +203,8 @@ private struct ExpressionParser {
 
 final class CalculatorViewModel: ObservableObject {
     @Published private(set) var history: [CalculationLine] = []
-    @Published private(set) var currentExpression = "0"
-    @Published private(set) var currentResult = "0"
+    @Published private(set) var currentExpression = ""
+    @Published private(set) var currentResult = ""
 
     let rows: [[CalcButton]] = [
         [.clear, .parenthesis, .percent, .divide],
@@ -220,24 +220,14 @@ final class CalculatorViewModel: ObservableObject {
     private var lastActionWasEqual = false
 
     var visibleLines: [CalculationLine] {
-        visibleLines(limit: 3)
-    }
+        guard !currentExpression.isEmpty else { return [] }
 
-    func visibleLines(limit: Int) -> [CalculationLine] {
-        let lineLimit = max(1, limit)
-
-        if lastActionWasEqual, !history.isEmpty {
-            return Array(history.suffix(lineLimit))
-        }
-
-        let recent = Array(history.suffix(max(0, lineLimit - 1)))
-        let current = CalculationLine(
+        return [CalculationLine(
             id: currentLineID,
             expression: currentExpression,
             result: currentResult,
             isCurrent: true
-        )
-        return recent + [current]
+        )]
     }
 
     func tap(_ button: CalcButton) {
@@ -449,7 +439,7 @@ final class CalculatorViewModel: ObservableObject {
     }
 
     private func refreshPresentation() {
-        currentExpression = tokens.isEmpty ? "0" : displayExpression(for: tokens)
+        currentExpression = tokens.isEmpty ? "" : displayExpression(for: tokens)
 
         if lastActionWasEqual, let completedResultRaw {
             currentResult = formatForDisplay(completedResultRaw)
@@ -457,7 +447,7 @@ final class CalculatorViewModel: ObservableObject {
         }
 
         guard !tokens.isEmpty else {
-            currentResult = "0"
+            currentResult = ""
             return
         }
 

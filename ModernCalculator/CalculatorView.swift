@@ -200,7 +200,7 @@ struct CalculatorView: View {
 
     private func visibleLines(for height: CGFloat) -> [CalculationLine] {
         let availableHeight = max(72, height - 360)
-        let candidates = viewModel.visibleLines(limit: 50)
+        let candidates = viewModel.visibleLines
         var selected: [CalculationLine] = []
         var occupiedHeight: CGFloat = 0
 
