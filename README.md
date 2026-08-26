@@ -15,7 +15,7 @@ A compact, expression-first calculator for macOS and Windows. The macOS app is b
 
 | 平台 / Platform | 版本 / Version | 下载 / Download |
 | --- | --- | --- |
-| macOS | v1.5 | [DMG](https://github.com/genoooool/awesome-calculator/releases/tag/v1.5) |
+| macOS | v1.5.1 | [DMG](https://github.com/genoooool/awesome-calculator/releases/tag/v1.5.1) |
 | Windows | v1.0.0 | [EXE 安装程序 / EXE installer](https://github.com/genoooool/awesome-calculator/releases/tag/windows-v1.0.0) |
 
 ## 中文
