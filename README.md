@@ -16,10 +16,11 @@ A compact, expression-first calculator for macOS and Windows. The macOS app uses
 | 平台 / Platform | 版本 / Version | 下载 / Download |
 | --- | --- | --- |
 | macOS | v1.5.1 | [DMG](https://github.com/genoooool/awesome-calculator/releases/tag/v1.5.1) |
-| Windows | v1.6.0 | [源码、构建和安装说明 / Build instructions](Windows/README.md)；新版安装包尚未发布到 GitHub |
+| Windows | v1.6.2 | [源码、构建和安装说明 / Build instructions](Windows/README.md)；新版安装包尚未发布到 GitHub |
 
-Windows 1.6.0 实机界面 / Windows 1.6.0 on-device screenshot:
+Windows 1.6.2 实机界面 / Windows 1.6.2 on-device screenshot:
 
+<img src="docs/images/calculator-windows-compact.png" alt="Windows calculator matching the rounded Mac reference" width="264">
 <img src="docs/images/calculator-windows.png" alt="Windows calculator with current expression and separate history" width="624">
 
 ## 中文
@@ -118,7 +119,7 @@ Select the `ModernCalculator` scheme in Xcode and press `Command + R`.
 
 ## Project structure
 
-This repository contains both macOS and Windows source code. Windows 1.6.0 follows the current macOS calculation and history behavior. The historical Windows 1.0.0 release is obsolete; use the rebuilt Windows version described above.
+This repository contains both macOS and Windows source code. Windows 1.6.2 follows the current macOS calculation and history behavior, with a rounded custom window matching the Mac reference. The historical Windows 1.0.0 release is obsolete; use the rebuilt Windows version described above.
 
 - `ModernCalculator/CalculatorView.swift` — window, keypad, calculation tape, and history UI.
 - `ModernCalculator/CalculatorViewModel.swift` — tokenizer, parser, evaluation, formatting, and history state.

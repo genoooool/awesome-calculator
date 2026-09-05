@@ -5,52 +5,78 @@ Updated: 2026-09-05
 ## Delivered versions
 
 - macOS remains 1.5.1; its Swift source was not changed by the Windows work.
-- Windows 1.6.0 is rebuilt from maintained `Windows/` source on 小呆电脑
+- Windows 1.6.2 is rebuilt from maintained `Windows/` source on 小呆电脑
   (`DESKTOP-RMIV2F3`, Windows 11 x64), using the existing `windows-build` channel.
 - Installed EXE: `D:\Awesome Calculator 1.6\Awesome Calculator.exe`. The existing
   desktop, Start-menu and pinned taskbar **Awesome Calculator** shortcuts target
-  that EXE. The taskbar entry was corrected in the follow-up below.
+  that EXE. The taskbar pin removed during the upgrade was restored through its
+  observed native action and verified in the persisted taskbar data.
 - Old 1.0.0 installation remains at `D:\Awesome Calculator`. Its executable and
   source hashes were verified unchanged; original shortcuts/source are backed up
   under the Windows run's `legacy-backup` directory. Do not remove it unprompted.
+- The complete previous 1.6.1 installation is backed up under the current run's
+  `backup-1.6.1` directory; 1.6.0 is preserved in the earlier UI161 run.
+  The UI change leaves both calculation models unchanged: the user clarified the
+  reported history loss came from not pressing Enter/equals.
 
 ## Build and evidence
 
-- Local delivery: `Dist/Awesome-Calculator-Setup-1.6.0-Windows-x64.exe`.
+- Local delivery: `Dist/Awesome-Calculator-Setup-1.6.2-Windows-x64.exe`.
 - Installer SHA-256:
-  `e2a921e99c65b36bab3e1b58f434864e4533ec82b1cdeb5171c94b94b55e994b`.
+  `a11a2167d8c5c217c5d43b782624885f7e6e9a3af3d9b194769f295ac8a6e354`.
 - Installed EXE SHA-256:
-  `79dceb6eee5b849110a840cd8c57603c98e54888381d0416fa4aeb86a404e0f0`.
+  `03e25ad87d425dfad15b673ba51309f2d30063aa49f2c068d270d5ca0abb9a37`.
 - Installed ASAR SHA-256:
-  `c6053dba441783b8ec191d498e672d75ac465e3a2f09952176012b530bee3379`.
-- Local receipts: `Dist/windows-20260905/verified-evidence/`. Installer, source
-  snapshot, prior attempts and remote command logs are retained under
-  `Dist/windows-20260905/`.
+  `c2d450f63ad98c52e84cfd5928dabe1ff1c1deb8cbfe24cbfd5a6b4b562fed94`.
+- Local receipts, package/installed screenshots and native-window checks:
+  `Dist/windows-ui-20260905/evidence-162/`. Scripts and prior UI161 evidence are
+  in the parent directory. Earlier 1.6.0 evidence remains in
+  `Dist/windows-20260905/` and `Dist/windows-ac-20260905/`.
 - Windows run:
-  `C:\Users\Administrator\codex-builds\awesome-calculator\20260905-1140`.
-  Current package is in `source\dist-delivery`, **not** earlier `dist-final`,
-  `dist-verified` or `dist-release` attempts.
-- `source-delivered.zip` is the final Windows source snapshot; SHA-256:
-  `9aa2b65933ea92139c27ea49837b42720b1a38d8e380f17dfdeb8ef6c9c9307c`.
-  Every installed runtime source file/icon was compared to that snapshot.
+  `C:\Users\Administrator\codex-builds\awesome-calculator\20260905-ui-162`.
+  Current package is in `source\dist`.
+- `source-162-v2.zip` is the verified build-input snapshot; SHA-256:
+  `0136dcdc07f51ce8077dccd545e68c99265898a0ca7d875699b3a827b62d7950`.
+  All ten installed runtime/icon/font files match it; later README edits do not
+  affect packaged runtime. The test-only RGB getter assertion was corrected after
+  packaging; final desktop test SHA-256 is
+  `1980abf0478ae0fd79a261b79db36a417bc6188c64714b3f9ad8870a07a49b78`.
+  The Windows model SHA-256 remains
+  `17285853dbeb37c3f87a02d0c022882b7544399a506fbcd7a35f21f668b2e6c4`.
 
 ## Verification
 
 - 18 Node logic tests passed on Mac and Windows, including 106 reference states
   generated from the actual current Swift model.
-- Ten real executable UI checks cover mouse/keyboard calculation, fullwidth
+- Thirteen real executable UI checks cover mouse/keyboard calculation, fullwidth
   clipboard paste, continuing/editing results, AC/history separation, copying all
   three history forms, invalid/oversized clipboard input, repeated panel resize,
-  visibility, native frame and sandbox settings.
+  visibility, custom window controls and sandbox settings. The native Windows
+  region excludes the rounded corners, has no OS caption, and recognizes the
+  top bar as a draggable title area.
 - The final package passed at the host's 125% scale and forced 150% scale in the
   logged-in Windows console session. Installed-file checks confirm AMD64,
-  version 1.6.0.0, matching ASAR and correct shortcut targets.
+  version 1.6.2.0, matching ASAR and correct shortcut targets.
 - Screenshots and JSON results distinguish packaged and installed EXE checks.
-- Both the final package and installed EXE passed all ten UI checks at 125% and
+- Both the final package and installed EXE passed all thirteen UI checks at 125% and
   150%. A normal launch in console session 1, without inspection/debugging/scale
   flags, reported a visible responsive window. The installed app was left open.
-- All 13 temporary desktop test/launch tasks were removed after verification;
-  `final-verification.json` records cleanup and the normal running process.
+- Normal desktop screenshot: `evidence-162/normal-desktop-window.png` under the
+  local UI receipt directory. It visibly shows desktop background outside all
+  four rounded corners; this is a real screen capture of the normal installed app.
+- The display outline stays `none` after input/paste and is visually checked in
+  screenshots. The reference layout uses a 264 × 560 body, 34-pixel corners,
+  three 14-pixel colored controls, 56-pixel keys and rounded Nunito lettering.
+- The user's real desktop screenshot exposed an opaque rectangle outside the
+  rounded UI161 body despite passing region/page checks. UI162 now uses a
+  transparent native/page background, with native edge resizing disabled.
+  Four outside-corner pixels match the background with the window hidden at
+  both scales, for package and installed EXE. Native region and page screenshots
+  alone must not be treated as proof of composited transparency.
+- All four temporary UI162 tasks were removed. The first post-install taskbar
+  check matched another calculator app as well; the resumed check selected the
+  observed Awesome Calculator entry exactly. It did not reinstall or disturb the
+  other app. The failed receipt and prior installation are preserved.
 - Earlier failed attempts were retained. Clipboard async handling and accumulating
   fractional-DPI window height were fixed before final delivery.
 - The installer/application are not certificate signed. This version was not
@@ -83,16 +109,18 @@ Updated: 2026-09-05
 
 Read `Windows/README.md` and run `Windows/scripts/build.ps1` on Windows. It installs
 the lockfile dependencies, tests and packages. Normal build needs download access.
-The verified network-recovery build used official, checksum-verified tools staged
-in this run: `electron-runtime`, `tools\nsis-bundle`, and `tools\rcedit`.
+The verified network-recovery build uses the official, checksum-verified tools
+retained in the earlier `20260905-1140` run. The unchanged lockfile dependencies
+were copied into the new isolated source directory before building.
 
 With those directories already available, from the run's `source` directory:
 
 ```powershell
-$env:ELECTRON_BUILDER_NSIS_DIR = '..\tools\nsis-bundle'
-$env:ELECTRON_BUILDER_NSIS_RESOURCES_DIR = '..\tools\nsis-bundle'
-$env:ELECTRON_BUILDER_RCEDIT_PATH = '..\tools\rcedit'
-node node_modules\electron-builder\cli.js --win nsis --x64 --publish never --config.electronDist=../electron-runtime
+$toolRun = 'C:\Users\Administrator\codex-builds\awesome-calculator\20260905-1140'
+$env:ELECTRON_BUILDER_NSIS_DIR = Join-Path $toolRun 'tools\nsis-bundle'
+$env:ELECTRON_BUILDER_NSIS_RESOURCES_DIR = $env:ELECTRON_BUILDER_NSIS_DIR
+$env:ELECTRON_BUILDER_RCEDIT_PATH = Join-Path $toolRun 'tools\rcedit'
+node node_modules\electron-builder\cli.js --win nsis --x64 --publish never ("--config.electronDist=" + (Join-Path $toolRun 'electron-runtime'))
 ```
 
 The environment values apply only to the build process/session. Do not change

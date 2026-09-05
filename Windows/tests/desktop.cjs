@@ -2,6 +2,7 @@ const { _electron: electron } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 // Exercise real input, native clipboard, window sizing and screenshots against
 // the packaged/installed EXE. No test hooks are shipped in the application.
@@ -9,7 +10,7 @@ const path = require('node:path');
   const output = path.resolve(process.env.CALCULATOR_TEST_OUTPUT || 'test-results');
   fs.mkdirSync(output, { recursive: true });
   const executablePath = process.env.CALCULATOR_TEST_EXE;
-  const args = executablePath ? [] : ['.'];
+  const args = process.env.CALCULATOR_TEST_SOURCE ? [path.resolve(process.env.CALCULATOR_TEST_SOURCE)] : executablePath ? [] : ['.'];
   if (process.env.CALCULATOR_TEST_SCALE) args.push(`--force-device-scale-factor=${process.env.CALCULATOR_TEST_SCALE}`);
   const application = await electron.launch({ executablePath, args, timeout: 60000 });
   let page;
@@ -43,6 +44,9 @@ const path = require('node:path');
     };
     await check('empty current display on startup', async () => {
       assert.equal(await text('expression'), ''); assert.equal(await text('result'), '');
+      assert.equal(await page.locator('#expression').evaluate(el => getComputedStyle(el, '::after').content), 'none');
+      await page.evaluate(() => document.fonts.ready);
+      await page.screenshot({ path: path.join(output, 'empty-reference.png'), omitBackground: true });
       const security = await application.evaluate(({ BrowserWindow }) => {
         const prefs = BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences();
         return { contextIsolation: prefs.contextIsolation, nodeIntegration: prefs.nodeIntegration, sandbox: prefs.sandbox };
@@ -54,12 +58,14 @@ const path = require('node:path');
       await page.keyboard.type('4*6'); await page.keyboard.press('Enter'); await result('24');
       assert.equal(await text('expression'), '4 × 6');
       assert.equal(await page.locator('.history-row').count(), 2);
+      assert.equal(await page.locator('#display').evaluate(el => getComputedStyle(el).outlineStyle), 'none');
       await page.screenshot({ path: path.join(output, 'compact.png') });
     });
     await check('AC empties display and preserves history', async () => {
       await key('clear'); assert.equal(await text('expression'), ''); assert.equal(await text('result'), '');
       assert.equal(await page.locator('.history-row').count(), 2);
       assert.equal((await page.locator('#display').innerText()).trim(), '');
+      assert.equal(await page.locator('#display').evaluate(el => getComputedStyle(el).outlineStyle), 'none');
       await page.screenshot({ path: path.join(output, 'ac-cleared.png') });
       await page.keyboard.type('7+8'); await page.keyboard.press('Enter'); await result('15');
       assert.equal(await text('expression'), '7 + 8');
@@ -75,6 +81,7 @@ const path = require('node:path');
       await clipboardWrite('2+5+18+55+（2*5）/3+75');
       await page.keyboard.press('Control+v'); await result('158.33333');
       assert.equal(await text('expression'), '2 + 5 + 18 + 55 + (2 × 5) ÷ 3 + 75');
+      assert.equal(await page.locator('#display').evaluate(el => getComputedStyle(el).outlineStyle), 'none');
     });
     await check('backspace edits completed expression and operators continue from result', async () => {
       await page.keyboard.press('Backspace'); await result('90.333333');
@@ -108,7 +115,7 @@ const path = require('node:path');
     });
     await check('invalid paste reports error and recovery works', async () => {
       const count = await page.locator('.history-row').count();
-      await clipboardWrite('1/0'); await page.locator('#paste').click(); await result('错误');
+      await clipboardWrite('1/0'); await page.keyboard.press('Control+v'); await result('错误');
       assert.equal(await page.locator('.history-row').count(), count);
       assert.equal(await text('status'), '无法计算，请检查算式');
       await page.keyboard.press('Escape'); await page.keyboard.type('10/2'); await page.keyboard.press('Enter'); await result('5');
@@ -116,7 +123,7 @@ const path = require('node:path');
     await check('oversized clipboard input is rejected without truncation or new history', async () => {
       const count = await page.locator('.history-row').count();
       await clipboardWrite('1+'.repeat(6000) + '1');
-      await page.locator('#paste').click();
+      await page.keyboard.press('Control+v');
       await page.waitForFunction(() => document.getElementById('status').textContent === '无法计算，请检查算式');
       assert.equal(await page.locator('.history-row').count(), count);
       assert.equal(await text('expression'), '10 ÷ 2'); await result('5');
@@ -126,20 +133,76 @@ const path = require('node:path');
       assert.equal(await page.locator('.history-row').count(), 0); await result('5');
       await page.locator('#close-history').click();
     });
-    await check('packaged window is visible, opaque and has a native titlebar', async () => {
+    await check('custom window controls, Mac proportions and focus appearance', async () => {
+      const layout = await page.evaluate(() => {
+        const style = id => getComputedStyle(document.getElementById(id));
+        return { keySize: document.querySelector('[data-key="digit-1"]').getBoundingClientRect().width,
+          keypadTop: document.getElementById('keypad').getBoundingClientRect().top,
+          radius: getComputedStyle(document.querySelector('.app-shell')).borderRadius,
+          titleButtons: document.querySelectorAll('.window-dot').length,
+          outline: style('display').outlineStyle, toolbarDrag: getComputedStyle(document.querySelector('.toolbar')).getPropertyValue('app-region'),
+          fontLoaded: document.fonts.check('18px Nunito'), pasteButton: !!document.getElementById('paste') };
+      });
+      assert.equal(layout.keySize, 56); assert.equal(layout.radius, '34px');
+      assert.equal(layout.titleButtons, 3); assert.equal(layout.outline, 'none');
+      assert.equal(layout.toolbarDrag, 'drag'); assert.equal(layout.fontLoaded, true); assert.equal(layout.pasteButton, false);
+      if (process.platform === 'win32') {
+        const handle = await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getNativeWindowHandle().readBigUInt64LE().toString());
+        const native = JSON.parse(execFileSync('powershell.exe', ['-NoProfile', '-File', path.join(__dirname, 'window-native.ps1'), '-WindowHandle', handle], { encoding: 'utf8', windowsHide: true }).trim().replace(/^\uFEFF/, ''));
+        assert.equal(native.regionKind, 3, 'Windows must have a rounded native drawing/input region');
+        assert.equal(native.hasNativeCaption, false); assert.equal(native.cornerAcceptsInput, false); assert.equal(native.centerAcceptsInput, true);
+        assert.equal(native.titleHitTest, 2, 'Top bar must be recognized as a native drag area');
+        fs.writeFileSync(path.join(output, 'native-window.json'), JSON.stringify(native, null, 2));
+      }
+      const original = await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getSize());
+      await page.locator('#window-zoom').click();
+      const zoomed = await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getSize());
+      assert.equal(zoomed[0], original[0]); assert.ok(zoomed[1] > original[1]);
+      await page.locator('#window-zoom').click();
+      assert.deepEqual(await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getSize()), original);
+      await page.locator('#window-minimize').click();
+      assert.equal(await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized()), true);
+      await application.evaluate(({ BrowserWindow }) => { const w = BrowserWindow.getAllWindows()[0]; w.restore(); w.focus(); });
+      fs.writeFileSync(path.join(output, 'visual-layout.json'), JSON.stringify(layout, null, 2));
+    });
+    await check('packaged window is visible with matching client and outer bounds', async () => {
       const state = await application.evaluate(({ app, BrowserWindow }) => {
         const w = BrowserWindow.getAllWindows()[0];
         return { version: app.getVersion(), visible: w.isVisible(), size: w.getContentSize(),
           outerSize: w.getSize(), background: w.getBackgroundColor(), executable: process.execPath, platform: process.platform };
       });
-      assert.equal(state.version, '1.6.0'); assert.equal(state.visible, true);
+      assert.equal(state.version, '1.6.2'); assert.equal(state.visible, true);
       // At fractional Windows scaling, GetClientRect <-> DIP conversion can
       // differ by up to two pixels. The DOM widths above are checked separately.
-      assert.ok(state.size[0] >= 264 && state.size[0] <= 266); assert.ok(state.size[1] >= 528);
-      assert.ok(state.outerSize[1] > state.size[1]);
-      assert.equal(state.background.toLowerCase(), '#0b0d10');
+      assert.ok(state.size[0] >= 264 && state.size[0] <= 266); assert.ok(state.size[1] >= 560);
+      assert.ok(Math.abs(state.outerSize[1] - state.size[1]) <= 2, 'No extra native titlebar');
+      // getBackgroundColor returns RGB; verify transparency from the actual
+      // desktop composition below instead of inferring alpha from this getter.
+      assert.equal(state.background.toLowerCase(), '#000000');
       fs.writeFileSync(path.join(output, 'runtime.json'), JSON.stringify(state, null, 2));
       assert.deepEqual(errors, []);
+    });
+    await check('desktop-composited corners reveal the real background', async () => {
+      if (process.platform !== 'win32') return;
+      const handle = await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getNativeWindowHandle().readBigUInt64LE().toString());
+      const capture = name => JSON.parse(execFileSync('powershell.exe', ['-NoProfile', '-File', path.join(__dirname, 'window-screenshot.ps1'), '-WindowHandle', handle, '-OutputPath', path.join(output, name)], { encoding: 'utf8', windowsHide: true }).trim().replace(/^\uFEFF/, ''));
+      await application.evaluate(({ BrowserWindow }) => { const w = BrowserWindow.getAllWindows()[0]; w.show(); w.focus(); });
+      await page.waitForTimeout(300);
+      const visible = capture('desktop-window.png');
+      await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].hide());
+      await page.waitForTimeout(300);
+      const hidden = capture('desktop-background.png');
+      await application.evaluate(({ BrowserWindow }) => { const w = BrowserWindow.getAllWindows()[0]; w.show(); w.focus(); });
+      assert.deepEqual(visible.cornerPixels, hidden.cornerPixels, 'Every outside corner must show the desktop, not a painted rectangle');
+      fs.writeFileSync(path.join(output, 'desktop-corners.json'), JSON.stringify({ visible, hidden }, null, 2));
+    });
+    await check('red close button closes the native window', async () => {
+      await application.evaluate(async ({ clipboard }) => {
+        if (globalThis.calculatorTestClipboard) await clipboard.write(globalThis.calculatorTestClipboard);
+      });
+      const closed = page.waitForEvent('close');
+      await page.locator('#window-close').click();
+      await closed;
     });
     fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify({ passed, errors, status: 'passed' }, null, 2));
   } catch (error) {
@@ -157,6 +220,6 @@ const path = require('node:path');
         await clipboard.write(globalThis.calculatorTestClipboard);
       }
     }).catch(() => {});
-    await application.close();
+    await application.close().catch(() => {});
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });

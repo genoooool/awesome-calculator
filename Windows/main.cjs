@@ -3,10 +3,26 @@ const path = require('node:path');
 
 const WIDTH = 264;
 const HISTORY_WIDTH = 360;
-const HEIGHT = 528;
+const HEIGHT = 560;
+const CORNER_RADIUS = 34;
 let window;
 let compactOuterWidth;
 let minimumOuterHeight;
+let unzoomedBounds;
+
+function updateWindowShape() {
+  if (process.platform !== 'win32' || !window) return;
+  const [width, height] = window.getSize();
+  const radius = Math.min(CORNER_RADIUS, width / 2, height / 2);
+  const rects = [{ x: 0, y: radius, width, height: height - radius * 2 }];
+  for (let y = 0; y < radius; y++) {
+    const inset = Math.ceil(radius - Math.sqrt(radius ** 2 - (radius - y - 0.5) ** 2));
+    rects.push({ x: inset, y, width: width - inset * 2, height: 1 });
+    rects.push({ x: inset, y: height - y - 1, width: width - inset * 2, height: 1 });
+  }
+  // Clip hit testing at the corners as well as the transparent visual surface.
+  window.setShape(rects);
+}
 
 // A separate profile preserves the old Windows installation's local data.
 app.setPath('userData', path.join(app.getPath('appData'), 'Awesome Calculator Windows'));
@@ -31,11 +47,17 @@ if (!app.requestSingleInstanceLock()) {
       width: WIDTH,
       height: HEIGHT,
       useContentSize: true,
-      resizable: true,
+      frame: false,
+      thickFrame: false,
+      // Electron transparent windows must not enable native edge resizing.
+      // History expansion and the green zoom control resize programmatically.
+      transparent: true,
+      resizable: false,
+      hasShadow: false,
       maximizable: false,
       fullscreenable: false,
       show: false,
-      backgroundColor: '#0b0d10',
+      backgroundColor: '#00000000',
       icon: path.join(__dirname, 'build/icon.png'),
       webPreferences: {
         preload: path.join(__dirname, 'preload.cjs'),
@@ -50,6 +72,8 @@ if (!app.requestSingleInstanceLock()) {
     minimumOuterHeight = outerHeight;
     window.setMinimumSize(outerWidth, outerHeight);
     window.setMaximumSize(outerWidth, 1400);
+    updateWindowShape();
+    window.on('resize', updateWindowShape);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => event.preventDefault());
     window.webContents.on('page-title-updated', (event) => event.preventDefault());
@@ -72,9 +96,7 @@ ipcMain.handle('clipboard:write', async (event, text) => {
   await clipboard.writeText(text);
   return true;
 });
-ipcMain.handle('window:history', (event, expanded) => {
-  if (!fromWindow(event) || typeof expanded !== 'boolean') return;
-  const target = { ...window.getBounds(), width: compactOuterWidth + (expanded ? HISTORY_WIDTH : 0) };
+function resizeWindow(target) {
   const area = screen.getDisplayMatching(target).workArea;
   target.x = Math.max(area.x, Math.min(target.x, area.x + area.width - target.width));
   target.y = Math.max(area.y, Math.min(target.y, area.y + area.height - target.height));
@@ -98,6 +120,34 @@ ipcMain.handle('window:history', (event, expanded) => {
   }
   window.setMinimumSize(target.width, minimumOuterHeight);
   window.setMaximumSize(target.width, 1400);
+  updateWindowShape();
+}
+
+ipcMain.handle('window:history', (event, expanded) => {
+  if (!fromWindow(event) || typeof expanded !== 'boolean') return;
+  resizeWindow({ ...window.getBounds(), width: compactOuterWidth + (expanded ? HISTORY_WIDTH : 0) });
+});
+ipcMain.handle('window:control', (event, action) => {
+  if (!fromWindow(event)) return;
+  if (action === 'close') window.close();
+  else if (action === 'minimize') window.minimize();
+  else if (action === 'zoom') {
+    const bounds = window.getBounds();
+    if (unzoomedBounds) {
+      resizeWindow({ ...unzoomedBounds, width: bounds.width });
+      unzoomedBounds = null;
+    } else {
+      unzoomedBounds = bounds;
+      const area = screen.getDisplayMatching(bounds).workArea;
+      resizeWindow({ ...bounds, y: area.y + 12, height: Math.max(minimumOuterHeight, Math.min(1000, area.height - 24)) });
+    }
+  }
+});
+ipcMain.handle('window:menu', (event) => {
+  if (!fromWindow(event)) return;
+  Menu.buildFromTemplate([
+    { label: '粘贴算式', accelerator: 'CommandOrControl+V', click: () => window.webContents.send('calculator:paste') }
+  ]).popup({ window });
 });
 
 app.on('window-all-closed', () => app.quit());

@@ -46,3 +46,45 @@
   predecessor as a backup. The 1.6 runtime already has the required AC behavior;
   this follow-up changes launch state, tests and documentation without rebuilding
   or replacing an identical runtime.
+
+## 2026-09-05 — Windows 1.6.1 follows the user's Mac visual reference
+
+- The user rejected the native titlebar, persistent paste label, display focus
+  rectangle and differing layout. They subsequently confirmed history worked
+  after Enter and explicitly narrowed the change to UI only. Both calculation
+  models are unchanged; AC and history semantics must not be altered here.
+- Replace the native titlebar with the Mac-style three colored controls and
+  draggable top bar. Use a 264 × 560 default body, 34-pixel corners, 56-pixel
+  circular keys and the Mac expression/result typography hierarchy. Keep paste
+  via Ctrl+V and a display context-menu action. Remove focus outlines only from
+  the noninteractive display; retain visible keyboard focus on controls.
+- The initial opaque frameless window used Electron's Windows native shape
+  region. It passed region and page-screenshot checks, but the user's actual
+  desktop screenshot exposed a rectangle behind the rounded body. That approach
+  is superseded by the 1.6.2 correction below. Green toggles vertical zoom without
+  expanding keypad width.
+- Bundle unchanged Nunito under SIL OFL for rounded keypad text; do not copy
+  Apple's system font. Runtime font loading is offline.
+- Validate the actual installed EXE as well as the package. Focused screenshots
+  now cover empty, entered and AC-cleared displays. New controls are clicked and
+  native window effects verified; CSS assertions alone are insufficient.
+- The 1.6.0 uninstaller removed the existing taskbar pin during the upgrade.
+  Do not repeat an already successful install when a later shortcut check fails.
+  Resume verification from installed-file hashes and restore the user's pin
+  using the visible Windows taskbar action, checking the persisted link target.
+
+## 2026-09-05 — Windows 1.6.2 must be transparent in actual desktop composition
+
+- Use `transparent: true`, a transparent window/page background and no default
+  CSS color scheme outside the rounded shell. Keep the native rounded input
+  region. Disable native edge resizing and native shadow for this transparent
+  window; existing programmatic history expansion and green-button zoom remain.
+- Do not infer visual transparency from a region handle or an alpha-omitted
+  page screenshot. Compare four outside-corner pixels in real screen captures
+  with the window shown and hidden at 125% and 150%, and visually inspect a
+  normal shortcut launch without debugging flags after installation.
+- Electron's background getter returns RGB here; the four-corner composition
+  check is the transparency assertion. The earlier getter-format failure is
+  preserved with the other run evidence. Test tools stay outside the app package.
+- This correction changes presentation only. The current Windows calculation
+  model and macOS sources remain byte-for-byte unchanged.

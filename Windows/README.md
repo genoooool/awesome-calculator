@@ -1,15 +1,24 @@
 # Awesome Calculator for Windows
 
-Windows 1.6.0 follows the current macOS 1.5.1 calculator behavior. It runs entirely
+Windows 1.6.2 follows the current macOS 1.5.1 calculator behavior. It runs entirely
 offline and includes its own runtime. The maintained Windows source is now in this
 repository; the old 1.0.0 release installer is no longer the current Windows build.
 
-The window uses the native Windows titlebar, an opaque dark surface and the same
-264-pixel calculator / 360-pixel history layout as the Mac app. Minimize, close,
-dragging and display scaling are handled by Windows. The main display contains only
+The window follows the user's Mac reference: a 264 × 560 compact body, 34-pixel
+rounded outline, three colored window controls, a 44-pixel top bar and 56-pixel
+circular keys. The native titlebar and persistent paste label are removed. The
+display never draws a focus border; keyboard-accessible buttons retain their focus
+indicators. The history panel is 360 pixels wide. The main display contains only
 the current expression. AC clears that display and leaves the last 50 calculations
 in the separate history panel. History lasts for the current application session,
 as in the Mac version.
+
+Red closes the app, yellow minimizes it, and green toggles its vertical size. Drag
+the empty top-bar area to move the window. Windows uses a transparent frameless
+surface and rounded native input region, so the desktop shows through outside the
+rounded body. Native edge resizing is disabled; the green button and history panel
+resize the window programmatically. The locally bundled Nunito font
+provides rounded keypad letters; its SIL Open Font License is in `src/fonts/OFL.txt`.
 
 ## Build on Windows
 
@@ -25,7 +34,7 @@ In PowerShell, from this directory:
 
 The script installs the lockfile dependencies, runs the calculation tests, and
 builds the x64 NSIS installer with Electron Builder. It never publishes a release.
-Output: `dist\Awesome-Calculator-Setup-1.6.0-Windows-x64.exe`.
+Output: `dist\Awesome-Calculator-Setup-1.6.2-Windows-x64.exe`.
 
 To run from source, use `npm ci` then `npm start`. To run logic tests, use `npm test`.
 
@@ -42,7 +51,10 @@ npm run test:desktop
 Repeat with `CALCULATOR_TEST_EXE` pointing to the installed EXE to test the installed
 version. `CALCULATOR_TEST_SCALE=1.5` exercises 150% display scaling. Tests drive the
 real packaged UI, Windows clipboard and window resize, and save screenshots plus
-JSON results. Test tooling is excluded from the packaged application. Close an
+JSON results. A real desktop capture compares all four outside corners with the
+same background while the window is hidden, catching opaque rectangular surfaces
+that CSS-only screenshots and native region checks can miss. Test tooling is
+excluded from the packaged application. Close an
 already-running copy before a test, because the app intentionally uses one instance.
 The test clipboard contents are temporary calculator expressions.
 
@@ -57,11 +69,14 @@ the Swift model; do not edit expected values by hand.
 | Action | Shortcut |
 | --- | --- |
 | Calculate | Enter or = |
-| Paste and calculate | Ctrl+V or 粘贴算式 |
+| Paste and calculate | Ctrl+V or right-click the display → 粘贴算式 |
 | Copy result | Ctrl+C with no text selected |
 | Show/hide history | Ctrl+H or history button |
 | Delete previous character | Backspace or Delete |
 | Clear current expression | Esc or C |
+
+Typing previews the result. Enter/`=` commits it to history; AC clears only the
+current display. This existing calculation behavior was not changed by the 1.6.2 UI update.
 
 Numbers, decimal point, `+ - * / % ( )`, fullwidth input and implicit multiplication
 work as on Mac. History provides separate buttons for copying an expression, result
@@ -94,4 +109,4 @@ its window, preload, rendering, packaging and tests were rebuilt here. The sourc
 archive and original installation are preserved in the task's local/Windows build
 records. The new app uses Electron's sandbox and context isolation, narrowly scoped
 clipboard/window IPC, a local-only content security policy and no runtime network
-dependencies. It does not use the old transparent-window or disabled-sandbox flags.
+dependencies. Window transparency does not disable the sandbox or context isolation.

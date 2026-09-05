@@ -14,6 +14,7 @@ function status(message) {
 function render() {
   const expression = byId('expression');
   expression.replaceChildren();
+  expression.classList.toggle('has-value', !!model.currentExpression);
   for (const part of model.currentExpression.split(/([+−×÷()%])/)) {
     const span = document.createElement('span');
     span.textContent = part;
@@ -24,6 +25,9 @@ function render() {
   const result = byId('result');
   result.textContent = model.currentResult;
   result.classList.toggle('long', model.currentResult.length > 14);
+  const line = byId('display').querySelector('.calculation-line');
+  line.classList.remove('stacked');
+  line.classList.toggle('stacked', expression.scrollWidth + result.scrollWidth + 16 > line.clientWidth);
   byId('history-count').textContent = model.history.length ? `${model.history.length} 条计算` : '暂无记录';
   byId('clear-history').disabled = !model.history.length;
   byId('history-empty').hidden = model.history.length > 0;
@@ -91,7 +95,14 @@ async function setHistory(open) {
   byId('history-toggle').setAttribute('aria-label', open ? '收起历史记录' : '展开历史记录');
   try { await desktop.setHistoryOpen(open); } catch { status('窗口调整失败，请重新打开应用'); }
 }
-byId('paste').addEventListener('click', paste);
+desktop.onPaste(paste);
+byId('display').addEventListener('contextmenu', (event) => {
+  if (window.getSelection().toString()) return;
+  event.preventDefault(); desktop.showContextMenu();
+});
+for (const action of ['close', 'minimize', 'zoom']) {
+  byId(`window-${action}`).addEventListener('click', () => desktop.windowControl(action));
+}
 byId('history-toggle').addEventListener('click', () => setHistory(!historyOpen));
 byId('close-history').addEventListener('click', () => setHistory(false));
 byId('clear-history').addEventListener('click', () => { model.clearHistory(); render(); });
