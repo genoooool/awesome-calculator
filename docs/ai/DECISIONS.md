@@ -88,3 +88,13 @@
   preserved with the other run evidence. Test tools stay outside the app package.
 - This correction changes presentation only. The current Windows calculation
   model and macOS sources remain byte-for-byte unchanged.
+
+## 2026-09-05 — Publish the verified Windows installer separately
+
+- On the user's explicit request, push the maintained Windows source and publish
+  the existing verified installer as `windows-v1.6.2`, following the repository's
+  Windows tag convention. Do not rebuild an already verified binary for upload.
+- Keep separate Windows and macOS download links. The Windows release does not
+  replace the existing macOS 1.5.1 asset or change its Latest designation.
+- Bind the release to an exact source commit and verify both the published asset
+  digest and a downloaded copy against the installed build's installer checksum.

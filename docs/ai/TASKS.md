@@ -18,8 +18,9 @@
 - [x] Commit the Windows source and verification documentation and land locally
   on `main` with a clean working tree.
 
-GitHub publication, certificate signing, Windows ARM64 and other Windows versions
-are outside this delivery. Preserve the old install until the user asks to remove it.
+GitHub publication was authorized separately and completed in the follow-up below.
+Certificate signing, Windows ARM64 and other Windows versions remain outside this
+delivery. Preserve the old install until the user asks to remove it.
 
 ## AC behavior report — 2026-09-05
 
@@ -55,3 +56,11 @@ are outside this delivery. Preserve the old install until the user asks to remov
   preserve prior attempts and remove all temporary verification tasks.
 - [x] Review the UI-only diff, pass the 18 focused calculation tests and syntax
   checks, and land the source/documentation commit locally with a clean checkout.
+
+## Windows 1.6.2 GitHub publication — 2026-09-05
+
+- [x] Verify the clean local source, remote main ancestry and installer checksum.
+- [x] Push the Windows implementation and release download links to `origin/main`.
+- [x] Publish `windows-v1.6.2` from the exact source commit, with the verified x64
+  installer and release notes describing UI fixes and Windows validation.
+- [x] Verify the public release, tag target and checksum of the downloaded asset.

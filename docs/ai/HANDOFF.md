@@ -22,6 +22,9 @@ Updated: 2026-09-05
 ## Build and evidence
 
 - Local delivery: `Dist/Awesome-Calculator-Setup-1.6.2-Windows-x64.exe`.
+- Public Windows release: https://github.com/genoooool/awesome-calculator/releases/tag/windows-v1.6.2
+  Tag source commit: `2f8b0fedfdf0ce68c44441b1b9c46c65903f8e5a`. The runtime matches
+  the verified installed build; the final tag also includes download links.
 - Installer SHA-256:
   `a11a2167d8c5c217c5d43b782624885f7e6e9a3af3d9b194769f295ac8a6e354`.
 - Installed EXE SHA-256:
@@ -79,9 +82,15 @@ Updated: 2026-09-05
   other app. The failed receipt and prior installation are preserved.
 - Earlier failed attempts were retained. Clipboard async handling and accumulating
   fractional-DPI window height were fixed before final delivery.
-- The installer/application are not certificate signed. This version was not
-  pushed or published to GitHub. Other Windows versions/architectures were not
-  tested in this task.
+- The user subsequently authorized GitHub publication. Source is pushed to
+  `origin/main`, with the x64 installer attached to `windows-v1.6.2`. The separate
+  macOS 1.5.1 release remains available. Publication evidence is in
+  `Dist/windows-release-1.6.2-published.json` and the downloaded verification copy
+  under `Dist/windows-release-1.6.2-verification/`. GitHub's asset digest and the
+  downloaded 111,810,099-byte installer both match the SHA-256 recorded above;
+  the public release is neither a draft nor a prerelease.
+- The installer/application are not certificate signed. Other Windows
+  versions/architectures were not tested in this task.
 
 ## AC report follow-up — 2026-09-05 12:41
 
