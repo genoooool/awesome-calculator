@@ -4,6 +4,9 @@ Windows 1.6.2 follows the current macOS 1.5.1 calculator behavior. It runs entir
 offline and includes its own runtime. The maintained Windows source is now in this
 repository; the old 1.0.0 release installer is no longer the current Windows build.
 
+Download the [Windows 1.6.2 x64 installer](https://github.com/genoooool/awesome-calculator/releases/tag/windows-v1.6.2).
+For macOS, use the separate [macOS 1.5.1 release](https://github.com/genoooool/awesome-calculator/releases/tag/v1.5.1).
+
 The window follows the user's Mac reference: a 264 × 560 compact body, 34-pixel
 rounded outline, three colored window controls, a 44-pixel top bar and 56-pixel
 circular keys. The native titlebar and persistent paste label are removed. The
