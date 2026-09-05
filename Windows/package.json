@@ -1,0 +1,42 @@
+{
+  "name": "awesome-calculator-windows",
+  "version": "1.6.0",
+  "description": "Expression-first calculator for Windows, aligned with the macOS app",
+  "author": "genoooool",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/calculator.test.cjs",
+    "test:desktop": "node tests/desktop.cjs",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.2.0",
+    "electron-builder": "26.15.3",
+    "playwright": "1.63.0"
+  },
+  "build": {
+    "appId": "com.genoooool.awesome-calculator.windows",
+    "productName": "Awesome Calculator",
+    "asar": true,
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.cjs", "preload.cjs", "src/**", "build/icon.png", "package.json"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.png",
+      "artifactName": "Awesome-Calculator-Setup-${version}-Windows-x64.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Awesome Calculator",
+      "runAfterFinish": false,
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

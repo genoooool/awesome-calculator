@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'">
+  <title>Awesome Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="calculator-panel">
+    <header class="toolbar">
+      <button id="paste" class="text-button" title="粘贴并计算 · Ctrl+V">粘贴算式</button>
+      <button id="history-toggle" class="icon-button" aria-label="展开历史记录" aria-expanded="false" title="历史记录 · Ctrl+H">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 3"/></svg>
+      </button>
+    </header>
+    <section id="display" tabindex="-1" aria-label="当前计算" aria-live="polite">
+      <div id="expression" class="expression"></div>
+      <div id="result" class="result"></div>
+    </section>
+    <div id="status" role="status" aria-live="polite"></div>
+    <div id="keypad" class="keypad" aria-label="计算键盘"></div>
+  </main>
+  <aside id="history" hidden aria-label="历史记录">
+    <header class="history-header">
+      <div><h1>历史记录</h1><p id="history-count">暂无记录</p></div>
+      <button id="clear-history" class="text-button" disabled>清除</button>
+      <button id="close-history" class="icon-button" aria-label="收起历史记录">×</button>
+    </header>
+    <div id="history-list"></div>
+    <p id="history-empty">还没有计算记录</p>
+  </aside>
+  <script src="calculator.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

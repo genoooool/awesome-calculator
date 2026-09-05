@@ -16,3 +16,8 @@ Dist/
 # Local design exports and intermediate screenshots
 /*.png
 /*.jpg
+
+# Windows development and packages
+Windows/node_modules/
+Windows/dist/
+Windows/test-results/
