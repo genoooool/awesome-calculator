@@ -35,3 +35,14 @@
   evidence of a working installation.
 - Project delivery is local build/install plus maintained source. GitHub
   publication and Windows certificate signing were not performed in this task.
+
+## 2026-09-05 — Verify every existing launch entry during side-by-side replacement
+
+- Desktop and Start-menu shortcuts did not cover the user's pinned taskbar
+  entry. It still launched the preserved 1.0.0 app, whose AC behavior differs.
+  Check pinned links, their application identities and the live process path
+  before diagnosing a new source regression or declaring replacement complete.
+- Repair the stale entry using the current installer's shortcut and keep its
+  predecessor as a backup. The 1.6 runtime already has the required AC behavior;
+  this follow-up changes launch state, tests and documentation without rebuilding
+  or replacing an identical runtime.

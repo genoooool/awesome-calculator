@@ -59,6 +59,17 @@ const path = require('node:path');
     await check('AC empties display and preserves history', async () => {
       await key('clear'); assert.equal(await text('expression'), ''); assert.equal(await text('result'), '');
       assert.equal(await page.locator('.history-row').count(), 2);
+      assert.equal((await page.locator('#display').innerText()).trim(), '');
+      await page.screenshot({ path: path.join(output, 'ac-cleared.png') });
+      await page.keyboard.type('7+8'); await page.keyboard.press('Enter'); await result('15');
+      assert.equal(await text('expression'), '7 + 8');
+      assert.equal(await page.locator('.history-row').count(), 3);
+      await page.locator('#history-toggle').click(); await width(624);
+      await key('clear');
+      assert.equal((await page.locator('#display').innerText()).trim(), '');
+      assert.equal(await page.locator('.history-row').count(), 3);
+      await page.screenshot({ path: path.join(output, 'ac-history-preserved.png') });
+      await page.locator('#close-history').click(); await width(264);
     });
     await check('Ctrl+V pastes a fullwidth long expression through Windows clipboard', async () => {
       await clipboardWrite('2+5+18+55+（2*5）/3+75');

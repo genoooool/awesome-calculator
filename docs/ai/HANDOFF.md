@@ -8,7 +8,8 @@ Updated: 2026-09-05
 - Windows 1.6.0 is rebuilt from maintained `Windows/` source on 小呆电脑
   (`DESKTOP-RMIV2F3`, Windows 11 x64), using the existing `windows-build` channel.
 - Installed EXE: `D:\Awesome Calculator 1.6\Awesome Calculator.exe`. The existing
-  desktop and Start-menu **Awesome Calculator** shortcuts target that EXE.
+  desktop, Start-menu and pinned taskbar **Awesome Calculator** shortcuts target
+  that EXE. The taskbar entry was corrected in the follow-up below.
 - Old 1.0.0 installation remains at `D:\Awesome Calculator`. Its executable and
   source hashes were verified unchanged; original shortcuts/source are backed up
   under the Windows run's `legacy-backup` directory. Do not remove it unprompted.
@@ -55,6 +56,28 @@ Updated: 2026-09-05
 - The installer/application are not certificate signed. This version was not
   pushed or published to GitHub. Other Windows versions/architectures were not
   tested in this task.
+
+## AC report follow-up — 2026-09-05 12:41
+
+- The user's report that AC retained the previous calculation was traced to a
+  running **1.0.0** process from `D:\Awesome Calculator`. Initial delivery had
+  updated desktop/Start-menu links but missed the pinned taskbar shortcut, which
+  still targeted the old EXE and application ID.
+- Reproduced the old source's behavior: after `2+3=`, AC produces the previous
+  `2+3=5` line plus a new `0` line. The installed 1.6 source clears the display.
+- Backed up the original taskbar link, replaced it with the new installed
+  shortcut (target and application ID), and notified the shell of that change.
+- All ten desktop checks passed again against the installed EXE resolved from
+  the repaired link. Added explicit whole-display emptiness, input after AC,
+  and AC with the history panel open, with screenshots for both cleared views.
+- Launched the repaired `.lnk` through Windows Shell and verified a normal,
+  responsive 1.6 window in console session 1. No old process remained. This
+  validates the shortcut launch; a native mouse click on taskbar chrome was not
+  automated. The installed application and installer hashes are unchanged.
+- Local evidence: `Dist/windows-ac-20260905/remote-evidence/`; remote run:
+  `C:\Users\Administrator\codex-builds\awesome-calculator\20260905-ac-entrypoint`.
+  Includes the old shortcut backup, repair/launch receipts, expanded AC test
+  screenshots and cleanup receipt. The temporary verification task was removed.
 
 ## Continue / rebuild
 

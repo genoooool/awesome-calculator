@@ -20,3 +20,11 @@
 
 GitHub publication, certificate signing, Windows ARM64 and other Windows versions
 are outside this delivery. Preserve the old install until the user asks to remove it.
+
+## AC behavior report — 2026-09-05
+
+- [x] Inspect live processes and desktop, Start-menu and pinned taskbar entries.
+- [x] Reproduce the old source's retained line and identify the stale taskbar link.
+- [x] Back up and correct that link's target and application identity.
+- [x] Verify installed AC behavior, subsequent input and preserved separate history.
+- [x] Verify normal launch through the repaired shortcut and remove the test task.

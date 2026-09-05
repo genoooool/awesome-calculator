@@ -74,9 +74,13 @@ fullwidth transform rejects that punctuation. Clipboard expressions are limited 
 
 The 1.6 application ID and data directory are distinct from the old 1.0 binary, so
 the older installation and profile can be preserved during a side-by-side upgrade.
-Back up existing desktop/Start-menu shortcuts before directing them to the new
-installation. Inspect the destination's installed version and path before replacing
-anything. Never treat an installer merely existing as proof that it works on Windows.
+Back up existing desktop, Start-menu and pinned taskbar shortcuts before directing
+them to the new installation. A pinned shortcut can still launch 1.0 even after the
+desktop shortcut is updated. Preserve the old shortcut, then replace its target
+and application identity using the new installer's shortcut. Verify a launch from
+that entry point resolves to the new EXE and confirm the running process path.
+Inspect the destination's installed version and path before replacing anything.
+Never treat an installer merely existing as proof that it works on Windows.
 
 The 2026-09-05 build is performed on 小呆电脑 (`DESKTOP-RMIV2F3`), Windows 11 x64,
 through the existing `windows-build` SSH/file channel. Current build and installation
